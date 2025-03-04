@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>叶山子 - 前端/后端开发（实习）</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
     <style>
         :root {
             --primary-color: #4361ee;
@@ -35,6 +36,12 @@
             line-height: 1.6;
             overflow-x: hidden;
             padding-top: 70px;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        body.loaded {
+            opacity: 1;
         }
 
         a {
@@ -53,6 +60,70 @@
             padding: 0 20px;
         }
 
+        /* Initial Loading Animation */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .page-loader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+
+        .loader-circle {
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loader-circle:nth-child(2) {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border-top-color: var(--secondary-color);
+            animation-duration: 1.2s;
+        }
+
+        .loader-circle:nth-child(3) {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border-top-color: var(--accent-color);
+            animation-duration: 1.5s;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         /* Header styles */
         header {
             background-color: rgba(255, 255, 255, 0.98);
@@ -64,6 +135,17 @@
             z-index: 1000;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+        }
+
+        header.scrolled {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.95);
+            transform: translateY(-100%);
+        }
+
+        header.visible {
+            transform: translateY(0);
         }
 
         nav {
@@ -77,6 +159,22 @@
             font-size: 24px;
             font-weight: 700;
             color: var(--primary-color);
+            position: relative;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        .logo:hover::after {
+            width: 100%;
         }
 
         .nav-links {
@@ -102,7 +200,7 @@
             transition: var(--transition);
         }
 
-        .nav-links a:hover::after {
+        .nav-links a:hover::after, .nav-links a.active::after {
             width: 100%;
         }
 
@@ -135,16 +233,38 @@
             align-items: center;
             justify-content: space-between;
             gap: 40px;
+            position: relative;
+            z-index: 2;
         }
 
         .hero-text {
             flex: 1;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s forwards 0.5s;
         }
 
         .hero-greeting {
             color: var(--primary-color);
             font-size: 1.2rem;
             margin-bottom: 10px;
+            position: relative;
+        }
+
+        .hero-greeting::before {
+            content: '< ';
+            position: absolute;
+            left: -20px;
+            opacity: 0;
+            animation: fadeIn 1s forwards 1.2s;
+        }
+
+        .hero-greeting::after {
+            content: ' />';
+            position: absolute;
+            right: -25px;
+            opacity: 0;
+            animation: fadeIn 1s forwards 1.2s;
         }
 
         .hero-name {
@@ -157,6 +277,16 @@
             color: transparent;
             position: relative;
             display: inline-block;
+            animation: gradientText 5s ease infinite;
+        }
+        
+        @keyframes gradientText {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
         }
         
         .hero-name::after {
@@ -175,6 +305,24 @@
             font-size: 1.8rem;
             font-weight: 500;
             margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-title::after {
+            content: '|';
+            position: absolute;
+            right: -10px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
         }
 
         .hero-desc {
@@ -313,9 +461,60 @@
             }
         }
 
+        .mouse-scroll {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 50px;
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeIn 1s forwards 2s;
+        }
+
+        .mouse-scroll::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            width: 6px;
+            height: 6px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            animation: scrollDown 2s infinite;
+        }
+
+        @keyframes scrollDown {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
         /* Section styles */
         section {
             padding: 80px 0;
+            position: relative;
         }
 
         .section-title {
@@ -355,6 +554,18 @@
         /* About section */
         .about {
             background-color: white;
+            overflow: hidden;
+        }
+
+        .about::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: var(--bg-color);
+            clip-path: ellipse(50% 60% at 50% 100%);
         }
 
         .about-content {
@@ -372,6 +583,23 @@
             font-weight: 600;
             margin-bottom: 20px;
             color: var(--primary-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-subtitle::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--gradient-2);
+            transition: width 0.3s ease;
+        }
+
+        .section-subtitle:hover::after {
+            width: 100%;
         }
 
         .about-desc {
@@ -389,6 +617,11 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            transition: var(--transition);
+        }
+
+        .info-item:hover {
+            transform: translateX(10px);
         }
 
         .info-icon {
@@ -400,70 +633,192 @@
             justify-content: center;
             align-items: center;
             color: white;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover .info-icon {
+            transform: rotate(360deg);
         }
 
         .info-details p {
             color: var(--light-text);
         }
 
-        /* Education section */
+        /* Education section - Timeline style */
         .education {
             background-color: var(--bg-color);
+            position: relative;
         }
 
-        .education-list {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
+        .education::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: white;
+            clip-path: ellipse(50% 60% at 50% 0);
+            z-index: 1;
+        }
+
+        .education-timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+            transform: translateX(-50%);
         }
 
         .education-item {
+            width: 45%;
+            margin: 0;
+            position: relative;
+            padding: 30px;
             background-color: var(--card-bg);
             border-radius: var(--border-radius);
-            padding: 30px;
             box-shadow: var(--shadow);
-            display: flex;
-            gap: 20px;
             transition: var(--transition);
+            margin-bottom: 50px;
         }
 
         .education-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .education-item::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .education-item::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            width: calc(50% - 45% - 20px);
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            z-index: 1;
+        }
+
+        .education-item:nth-child(odd) {
+            float: left;
+            clear: right;
+        }
+
+        .education-item:nth-child(odd)::before {
+            right: -30px;
+        }
+
+        .education-item:nth-child(odd)::after {
+            right: -20px;
+        }
+
+        .education-item:nth-child(even) {
+            float: right;
+            clear: left;
+        }
+
+        .education-item:nth-child(even)::before {
+            left: -30px;
+        }
+
+        .education-item:nth-child(even)::after {
+            left: -20px;
         }
 
         .education-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            position: absolute;
+            top: 10px;
+            width: 40px;
+            height: 40px;
+            background: white;
             border-radius: 50%;
-            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-shrink: 0;
+            color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+        }
+
+        .education-item:nth-child(odd) .education-icon {
+            right: -50px;
+        }
+
+        .education-item:nth-child(even) .education-icon {
+            left: -50px;
         }
 
         .education-content h3 {
             font-size: 1.3rem;
             margin-bottom: 5px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .education-content h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        .education-item:hover .education-content h3::after {
+            width: 100%;
         }
 
         .education-date {
             color: var(--light-text);
             font-size: 0.9rem;
             margin-bottom: 10px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .education-date::before {
+            content: '\f017';
+            font-family: 'Font Awesome 5 Free';
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
         }
 
         .education-place {
             font-weight: 500;
             margin-bottom: 10px;
             display: inline-block;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .education-place:hover {
+            color: var(--accent-color);
         }
 
         /* Experience section */
         .experience {
             background-color: white;
+            position: relative;
         }
 
         .experience-item {
@@ -473,11 +828,25 @@
             box-shadow: var(--shadow);
             margin-bottom: 30px;
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .experience-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+            z-index: -1;
         }
 
         .experience-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: var(--shadow-hover);
         }
 
         .experience-header {
@@ -490,16 +859,55 @@
         .experience-title {
             font-size: 1.3rem;
             color: var(--primary-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        .experience-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-2);
+            transition: width 0.3s ease;
+        }
+
+        .experience-item:hover .experience-title::after {
+            width: 100%;
         }
 
         .experience-date {
             color: var(--light-text);
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .experience-date::before {
+            content: '\f073';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
         }
 
         .experience-company {
             font-weight: 500;
             margin-bottom: 15px;
             display: block;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .experience-company::before {
+            content: '\f1ad';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
         }
 
         .experience-desc ul {
@@ -509,11 +917,39 @@
 
         .experience-desc li {
             margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+            transition: var(--transition);
+        }
+
+        .experience-desc li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+        }
+
+        .experience-desc li:hover {
+            transform: translateX(5px);
         }
 
         /* Skills section */
         .skills {
             background-color: var(--bg-color);
+            position: relative;
+        }
+
+        .skills::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: white;
+            clip-path: ellipse(50% 60% at 50% 100%);
         }
 
         .skills-content {
@@ -534,12 +970,32 @@
             padding: 30px;
             box-shadow: var(--shadow);
             transition: var(--transition);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .skill-category::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(45deg, rgba(67, 97, 238, 0.1), rgba(76, 201, 240, 0.1), rgba(67, 97, 238, 0.1));
+            transform: rotate(45deg);
+            z-index: -1;
+            transition: all 0.8s ease;
+        }
+
+        .skill-category:hover::before {
+            top: -10%;
+            left: -10%;
         }
 
         .skill-category:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-hover);
-            background: linear-gradient(145deg, #ffffff, #f5f9ff);
         }
 
         .skill-icon {
@@ -587,6 +1043,23 @@
             font-weight: 600;
             margin-bottom: 20px;
             color: var(--primary-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        .skill-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-2);
+            transition: width 0.3s ease;
+        }
+
+        .skill-category:hover .skill-title::after {
+            width: 100%;
         }
 
         .skill-list {
@@ -626,6 +1099,19 @@
         /* Projects section */
         .projects {
             background-color: white;
+            position: relative;
+        }
+
+        .projects::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: var(--bg-color);
+            clip-path: ellipse(50% 60% at 50% 0);
+            z-index: 1;
         }
 
         .projects-grid {
@@ -669,6 +1155,25 @@
 
         .project-content {
             padding: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .project-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(76, 201, 240, 0.05), transparent 70%);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .project-card:hover .project-content::before {
+            opacity: 1;
         }
 
         .project-tags {
@@ -684,6 +1189,12 @@
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover .project-tag {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(67, 97, 238, 0.1);
         }
 
         .project-title {
@@ -691,6 +1202,23 @@
             font-weight: 600;
             margin-bottom: 10px;
             color: var(--primary-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        .project-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        .project-card:hover .project-title::after {
+            width: 100%;
         }
 
         .project-desc {
@@ -701,6 +1229,18 @@
         /* Contact section */
         .contact {
             background-color: var(--bg-color);
+            position: relative;
+        }
+
+        .contact::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: white;
+            clip-path: ellipse(50% 60% at 50% 100%);
         }
 
         .contact-content {
@@ -726,12 +1266,29 @@
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            z-index: 1;
+        }
+
+        .contact-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(67, 97, 238, 0.05), rgba(76, 201, 240, 0.05));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .contact-item:hover::before {
+            opacity: 1;
         }
 
         .contact-item:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-hover);
-            background: linear-gradient(145deg, #ffffff, #f5f9ff);
         }
         
         .contact-item::after {
@@ -759,11 +1316,32 @@
             align-items: center;
             color: white;
             font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover .contact-icon {
+            transform: rotate(360deg);
         }
 
         .contact-details h4 {
             font-size: 1.1rem;
             margin-bottom: 5px;
+            position: relative;
+        }
+
+        .contact-details h4::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .contact-item:hover .contact-details h4::after {
+            width: 100%;
         }
 
         .contact-details p {
@@ -776,6 +1354,18 @@
             color: white;
             padding: 30px 0;
             text-align: center;
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: var(--bg-color);
+            clip-path: ellipse(50% 60% at 50% 100%);
         }
 
         .footer-content {
@@ -787,10 +1377,80 @@
             margin-top: 20px;
             color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-copy::before, .footer-copy::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            top: 50%;
+        }
+
+        .footer-copy::before {
+            left: -40px;
+        }
+
+        .footer-copy::after {
+            right: -40px;
+        }
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            z-index: 999;
+        }
+
+        .back-to-top.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
         }
 
         /* Responsive styles */
         @media (max-width: 992px) {
+            .education-item {
+                width: 100%;
+                float: none;
+                margin-bottom: 30px;
+            }
+
+            .education-item::before, .education-item::after {
+                display: none;
+            }
+
+            .education-icon {
+                position: static;
+                margin-bottom: 10px;
+            }
+
+            .timeline-line {
+                display: none;
+            }
+
             .hero-content {
                 flex-direction: column;
                 text-align: center;
@@ -862,13 +1522,22 @@
     </style>
 </head>
 <body>
+    <!-- Loader -->
+    <div class="page-loader">
+        <div class="loader">
+            <div class="loader-circle"></div>
+            <div class="loader-circle"></div>
+            <div class="loader-circle"></div>
+        </div>
+    </div>
+
     <!-- Header -->
-    <header>
+    <header id="header">
         <div class="container">
             <nav>
                 <a href="#" class="logo">叶山子</a>
                 <ul class="nav-links">
-                    <li><a href="#hero">首页</a></li>
+                    <li><a href="#hero" class="active">首页</a></li>
                     <li><a href="#about">关于我</a></li>
                     <li><a href="#education">教育背景</a></li>
                     <li><a href="#experience">工作经验</a></li>
@@ -904,31 +1573,32 @@
                     </p>
                     <div class="hero-btns">
                         <a href="#contact" class="btn btn-primary">联系我</a>
-                        
+                        <a href="#projects" class="btn btn-outline" onclick="scrollToProjects()">查看项目</a>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="mouse-scroll"></div>
     </section>
 
     <!-- About Section -->
-    <section id="about" class="about">
+    <section id="about" class="about" data-aos="fade-up">
         <div class="container">
             <h2 class="section-title" data-text="ABOUT">关于我</h2>
             <div class="about-content">
                 <div class="about-text">
                     <h3 class="section-subtitle">热爱技术的全栈开发实习生</h3>
-                    <p class="about-desc">
+                    <p class="about-desc" data-aos="fade-up" data-aos-delay="200">
                         我是叶山子，卡尔加里大学软件工程专业应届毕业生，即将攻读香港中文大学信息工程硕士学位。我拥有扎实的计算机基础知识和较强的问题解决能力，同时英语沟通水平出色。
                     </p>
-                    <p class="about-desc">
+                    <p class="about-desc" data-aos="fade-up" data-aos-delay="300">
                         在苏州西门子电器有限公司实习期间，我参与了企业文档管理系统和考勤系统的开发，积累了丰富的实际项目经验。我熟悉现代前后端技术栈，包括Django、Node.js、Angular和Vue.js等框架，同时对Docker容器化和云平台部署有深入了解。
                     </p>
-                    <p class="about-desc">
+                    <p class="about-desc" data-aos="fade-up" data-aos-delay="400">
                         本人具备良好的计算机基础与较强的问题解决能力，同时英语沟通水平出色，能熟练进行口语与书面交流；能与团队成员保持良好互动并共同达成目标，工作效率高，具备良好的抗压能力；对计算机视觉和机器学习领域有浓厚兴趣，并积极学习相关技术
                     </p>
                     <div class="about-info">
-                        <div class="info-item">
+                        <div class="info-item" data-aos="fade-up" data-aos-delay="500">
                             <div class="info-icon">
                                 <i class="fas fa-envelope"></i>
                             </div>
@@ -937,7 +1607,7 @@
                                 <p>shanziye41@gmail.com</p>
                             </div>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" data-aos="fade-up" data-aos-delay="550">
                             <div class="info-icon">
                                 <i class="fas fa-phone"></i>
                             </div>
@@ -946,7 +1616,7 @@
                                 <p>+1 (825) 983-8694</p>
                             </div>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" data-aos="fade-up" data-aos-delay="600">
                             <div class="info-icon">
                                 <i class="fas fa-map-marker-alt"></i>
                             </div>
@@ -955,7 +1625,7 @@
                                 <p>加拿大卡尔加里</p>
                             </div>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" data-aos="fade-up" data-aos-delay="650">
                             <div class="info-icon">
                                 <i class="fas fa-map-pin"></i>
                             </div>
@@ -964,7 +1634,7 @@
                                 <p>深圳/苏州</p>
                             </div>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" data-aos="fade-up" data-aos-delay="700">
                             <div class="info-icon">
                                 <i class="fas fa-calendar-alt"></i>
                             </div>
@@ -973,7 +1643,7 @@
                                 <p>预计2025年6月</p>
                             </div>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" data-aos="fade-up" data-aos-delay="750">
                             <div class="info-icon">
                                 <i class="fas fa-user"></i>
                             </div>
@@ -988,12 +1658,15 @@
         </div>
     </section>
 
-    <!-- Education Section -->
-    <section id="education" class="education">
+    <!-- Education Section with Timeline -->
+    <section id="education" class="education" data-aos="fade-up">
         <div class="container">
             <h2 class="section-title" data-text="EDUCATION">教育背景</h2>
-            <div class="education-list">
-                <div class="education-item">
+            <div class="education-timeline">
+                <div class="timeline-line"></div>
+                
+                <!-- First Education Item -->
+                <div class="education-item" data-aos="fade-right" data-aos-delay="300">
                     <div class="education-icon">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
@@ -1004,7 +1677,9 @@
                         <p>即将入读香港中文大学信息工程硕士课程。</p>
                     </div>
                 </div>
-                <div class="education-item">
+                
+                <!-- Second Education Item -->
+                <div class="education-item" data-aos="fade-left" data-aos-delay="500">
                     <div class="education-icon">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
@@ -1015,15 +1690,18 @@
                         <p>在卡尔加里大学攻读软件工程学士学位，课程涵盖数据结构、算法、软件工程、人机交互、云计算等领域。积极参与校内项目和研究活动，培养了良好的系统分析与设计能力。</p>
                     </div>
                 </div>
+                
+                <!-- Clear floats -->
+                <div style="clear: both;"></div>
             </div>
         </div>
     </section>
 
     <!-- Experience Section -->
-    <section id="experience" class="experience">
+    <section id="experience" class="experience" data-aos="fade-up">
         <div class="container">
             <h2 class="section-title" data-text="EXPERIENCE">工作经验</h2>
-            <div class="experience-item">
+            <div class="experience-item" data-aos="fade-up" data-aos-delay="300">
                 <div class="experience-header">
                     <h3 class="experience-title">软件开发实习生</h3>
                     <span class="experience-date">2023年7月 - 2023年8月</span>
@@ -1031,10 +1709,10 @@
                 <span class="experience-company">苏州西门子电器有限公司</span>
                 <div class="experience-desc">
                     <ul>
-                        <li>调用并封装SharePoint Online REST API，实现企业文档上传/下载及权限管理；结合OAuth/NTLM认证并使用Postman进行接口调试和安全性验证</li>
-                        <li>利用Azure容器服务（基于Docker容器）测试部署文档管理组件</li>
-                        <li>开发基于Django + Vue.js的微服务考勤系统，通过Docker容器化部署于内网，为100多名工人提供考勤服务</li>
-                        <li>负责需求讨论和系统设计，编写技术文档，提升项目开发效率和代码质量</li>
+                        <li data-aos="fade-up" data-aos-delay="400">调用并封装SharePoint Online REST API，实现企业文档上传/下载及权限管理；结合OAuth/NTLM认证并使用Postman进行接口调试和安全性验证</li>
+                        <li data-aos="fade-up" data-aos-delay="450">利用Azure容器服务（基于Docker容器）测试部署文档管理组件</li>
+                        <li data-aos="fade-up" data-aos-delay="500">开发基于Django + Vue.js的微服务考勤系统，通过Docker容器化部署于内网，为100多名工人提供考勤服务</li>
+                        <li data-aos="fade-up" data-aos-delay="550">负责需求讨论和系统设计，编写技术文档，提升项目开发效率和代码质量</li>
                     </ul>
                 </div>
             </div>
@@ -1042,14 +1720,14 @@
     </section>
 
     <!-- Skills Section -->
-    <section id="skills" class="skills">
+    <section id="skills" class="skills" data-aos="fade-up">
         <div class="container">
             <h2 class="section-title" data-text="SKILLS">我的技能</h2>
             <div class="skills-content">
-                <p>作为一名前端/后端开发工程师，我掌握了一系列技能，让我能够从概念到完成交付高质量的项目。以下是我的核心技能领域。</p>
+                <p data-aos="fade-up" data-aos-delay="200">作为一名前端/后端开发工程师，我掌握了一系列技能，让我能够从概念到完成交付高质量的项目。以下是我的核心技能领域。</p>
             </div>
             <div class="skills-categories">
-                <div class="skill-category">
+                <div class="skill-category" data-aos="fade-up" data-aos-delay="300">
                     <div class="skill-icon">
                         <i class="fas fa-code"></i>
                     </div>
@@ -1061,7 +1739,7 @@
                         <div class="skill-item">HTML/CSS</div>
                     </div>
                 </div>
-                <div class="skill-category">
+                <div class="skill-category" data-aos="fade-up" data-aos-delay="400">
                     <div class="skill-icon">
                         <i class="fas fa-laptop-code"></i>
                     </div>
@@ -1075,7 +1753,7 @@
                         <div class="skill-item">Tailwind CSS</div>
                     </div>
                 </div>
-                <div class="skill-category">
+                <div class="skill-category" data-aos="fade-up" data-aos-delay="500">
                     <div class="skill-icon">
                         <i class="fas fa-cloud"></i>
                     </div>
@@ -1093,11 +1771,11 @@
     </section>
 
     <!-- Projects Section -->
-    <section id="projects" class="projects">
+    <section id="projects" class="projects" data-aos="fade-up">
         <div class="container">
             <h2 class="section-title" data-text="PROJECTS">我的项目</h2>
             <div class="projects-grid">
-                <div class="project-card">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="300">
                     <div class="project-content">
                         <div class="project-tags">
                             <span class="project-tag">NestJS</span>
@@ -1111,7 +1789,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="project-card">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="400">
                     <div class="project-content">
                         <div class="project-tags">
                             <span class="project-tag">Node.js</span>
@@ -1125,7 +1803,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="project-card">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="500">
                     <div class="project-content">
                         <div class="project-tags">
                             <span class="project-tag">PyTorch</span>
@@ -1144,13 +1822,13 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="contact">
+    <section id="contact" class="contact" data-aos="fade-up">
         <div class="container">
             <h2 class="section-title" data-text="CONTACT">联系我</h2>
             <div class="contact-content">
-                <p>我正在寻找前端/后端开发相关的实习机会，如果您对我的经历和技能感兴趣，或者有任何问题，欢迎通过以下方式与我联系，我会尽快回复您。</p>
+                <p data-aos="fade-up" data-aos-delay="200">我正在寻找前端/后端开发相关的实习机会，如果您对我的经历和技能感兴趣，或者有任何问题，欢迎通过以下方式与我联系，我会尽快回复您。</p>
                 <div class="contact-info">
-                    <div class="contact-item">
+                    <div class="contact-item" data-aos="fade-up" data-aos-delay="300">
                         <div class="contact-icon">
                             <i class="fas fa-envelope"></i>
                         </div>
@@ -1159,7 +1837,7 @@
                             <p>shanziye41@gmail.com</p>
                         </div>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-aos="fade-up" data-aos-delay="400">
                         <div class="contact-icon">
                             <i class="fas fa-phone"></i>
                         </div>
@@ -1168,7 +1846,7 @@
                             <p>+1 (825) 983-8694</p>
                         </div>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-aos="fade-up" data-aos-delay="500">
                         <div class="contact-icon">
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
@@ -1177,7 +1855,7 @@
                             <p>加拿大卡尔加里</p>
                         </div>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-aos="fade-up" data-aos-delay="600">
                         <div class="contact-icon">
                             <i class="fas fa-map-pin"></i>
                         </div>
@@ -1202,17 +1880,49 @@
         </div>
     </footer>
 
+    <!-- Back to top button -->
+    <div class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
     <!-- Font Awesome -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <!-- AOS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 
     <!-- JavaScript -->
     <script>
+        // Initial loader
+        window.addEventListener('load', function() {
+            document.body.classList.add('loaded');
+            
+            setTimeout(function() {
+                const loader = document.querySelector('.page-loader');
+                if (loader) {
+                    loader.classList.add('fade-out');
+                    setTimeout(function() {
+                        loader.style.display = 'none';
+                    }, 500);
+                }
+            }, 1000);
+            
+            // Initialize AOS
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true,
+                mirror: false
+            });
+        });
+
         function scrollToProjects() {
-    const projectsSection = document.getElementById('projects');
-    if (projectsSection) {
-        projectsSection.scrollIntoView({ behavior: 'smooth' });
-    }
-}
+            const projectsSection = document.getElementById('projects');
+            if (projectsSection) {
+                projectsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Mobile menu toggle
             const hamburger = document.querySelector('.hamburger');
@@ -1246,6 +1956,30 @@
                 });
             });
 
+            // Header scroll effect
+            const header = document.getElementById('header');
+            let lastScrollTop = 0;
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (scrollTop > 100) {
+                    header.classList.add('scrolled');
+                    
+                    if (scrollTop > lastScrollTop) {
+                        // Scrolling down
+                        header.classList.remove('visible');
+                    } else {
+                        // Scrolling up
+                        header.classList.add('visible');
+                    }
+                } else {
+                    header.classList.remove('scrolled');
+                }
+                
+                lastScrollTop = scrollTop;
+            });
+
             // Active navigation link based on scroll position
             window.addEventListener('scroll', function() {
                 const sections = document.querySelectorAll('section');
@@ -1269,6 +2003,42 @@
                     }
                 });
             });
+
+            // Back to top button
+            const backToTop = document.querySelector('.back-to-top');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTop.classList.add('active');
+                } else {
+                    backToTop.classList.remove('active');
+                }
+            });
+            
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Typing effect for hero title
+            const heroTitle = document.querySelector('.hero-title');
+            if (heroTitle) {
+                const text = heroTitle.textContent;
+                heroTitle.textContent = '';
+                
+                let i = 0;
+                function typeWriter() {
+                    if (i < text.length) {
+                        heroTitle.textContent += text.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 100);
+                    }
+                }
+                
+                setTimeout(typeWriter, 1000);
+            }
         });
     </script>
 </body>
