@@ -251,21 +251,7 @@
             position: relative;
         }
 
-        .hero-greeting::before {
-            content: '< ';
-            position: absolute;
-            left: -20px;
-            opacity: 0;
-            animation: fadeIn 1s forwards 1.2s;
-        }
 
-        .hero-greeting::after {
-            content: ' />';
-            position: absolute;
-            right: -25px;
-            opacity: 0;
-            animation: fadeIn 1s forwards 1.2s;
-        }
 
         .hero-name {
             font-size: 3.5rem;
@@ -278,6 +264,8 @@
             position: relative;
             display: inline-block;
             animation: gradientText 5s ease infinite;
+            display: block;
+            width: 100%;
         }
         
         @keyframes gradientText {
@@ -302,6 +290,8 @@
         }
 
         .hero-title {
+            display: block;
+            width: 100%;
             font-size: 1.8rem;
             font-weight: 500;
             margin-bottom: 20px;
@@ -315,6 +305,11 @@
             right: -10px;
             animation: blink 1s infinite;
         }
+
+        .clearfix {
+    clear: both;
+    height: 10px; /* 为两个元素间添加一些空间 */
+}
 
         @keyframes blink {
             0%, 100% {
@@ -525,19 +520,19 @@
             color: var(--primary-color);
             position: relative;
         }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
-            border-radius: 2px;
-        }
-        
+/* 替代方案：使用点状装饰 */
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px; /* 更短一些 */
+    height: 2px; /* 更细一些 */
+    background: linear-gradient(to right, var(--primary-color), rgba(76, 201, 240, 0.4)); /* 渐变到半透明 */
+    border-radius: 1px;
+    opacity: 0.8; /* 稍微透明一点 */
+}  
         .section-title::before {
             content: attr(data-text);
             position: absolute;
@@ -742,20 +737,7 @@
             left: -20px;
         }
 
-        .education-icon {
-            position: absolute;
-            top: 10px;
-            width: 40px;
-            height: 40px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--primary-color);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 3;
-        }
+
 
         .education-item:nth-child(odd) .education-icon {
             right: -50px;
@@ -786,17 +768,18 @@
         .education-item:hover .education-content h3::after {
             width: 100%;
         }
-
         .education-date {
-            color: var(--light-text);
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            position: relative;
-            padding-left: 20px;
-        }
+    color: var(--light-text);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    position: relative;
+    padding-left: 0; /* 修改此处，移除左侧填充 */
+    display: inline-block; /* 修改此处，变为内联块级元素 */
+    white-space: nowrap; /* 修改此处，防止换行 */
+}
 
         .education-date::before {
-            content: '\f017';
+            content: '';
             font-family: 'Font Awesome 5 Free';
             position: absolute;
             left: 0;
@@ -885,7 +868,7 @@
         }
 
         .experience-date::before {
-            content: '\f073';
+            content: '';
             font-family: 'Font Awesome 5 Free';
             font-weight: 900;
             position: absolute;
@@ -901,14 +884,6 @@
             padding-left: 25px;
         }
 
-        .experience-company::before {
-            content: '\f1ad';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            position: absolute;
-            left: 0;
-            color: var(--primary-color);
-        }
 
         .experience-desc ul {
             list-style-position: inside;
@@ -916,20 +891,20 @@
         }
 
         .experience-desc li {
-            margin-bottom: 8px;
-            position: relative;
-            padding-left: 20px;
-            transition: var(--transition);
-        }
+    list-style-type: none; /* 移除默认列表样式 */
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 8px;
+}
 
-        .experience-desc li::before {
-            content: '\f00c';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            position: absolute;
-            left: 0;
-            color: var(--primary-color);
-        }
+.experience-desc li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--primary-color); /* 蓝色圆点 */
+    font-size: 1.5rem; /* 稍微加大点的尺寸 */
+}
 
         .experience-desc li:hover {
             transform: translateX(5px);
@@ -1567,6 +1542,7 @@
                 <div class="hero-text">
                     <p class="hero-greeting">你好，我是</p>
                     <h1 class="hero-name">叶山子</h1>
+                    <div class="clearfix" style="width:100%;"></div> <!-- 添加此行强制换行 -->
                     <h2 class="hero-title">我正在寻找前端/后端开发实习</h2>
                     <p class="hero-desc">
                         卡尔加里大学软件工程专业应届毕业生，即将攻读香港中文大学信息工程硕士学位。曾在苏州西门子电器有限公司实习，熟悉前后端技术栈，擅长微服务架构设计和云平台部署，寻求深圳/苏州地区的开发实习机会。
@@ -1667,9 +1643,7 @@
                 
                 <!-- First Education Item -->
                 <div class="education-item" data-aos="fade-right" data-aos-delay="300">
-                    <div class="education-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
+
                     <div class="education-content">
                         <h3>信息工程（硕士）</h3>
                         <span class="education-date">2025年9月 - 2026年10月</span>
@@ -1680,9 +1654,7 @@
                 
                 <!-- Second Education Item -->
                 <div class="education-item" data-aos="fade-left" data-aos-delay="500">
-                    <div class="education-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
+
                     <div class="education-content">
                         <h3>软件工程（本科）</h3>
                         <span class="education-date">2020年9月 - 2025年4月</span>
