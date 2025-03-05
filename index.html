@@ -1062,13 +1062,14 @@
         }
 
         .experience-desc li::before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            top: 0;
-            color: var(--primary-color);
-            font-size: 1.5rem;
-        }
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
 
         .experience-desc li:hover {
             transform: translateX(5px);
